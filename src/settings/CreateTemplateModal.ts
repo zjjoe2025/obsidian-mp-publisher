@@ -2,6 +2,7 @@ import { App, Modal, Setting, Notice, setIcon, ColorComponent } from 'obsidian';
 import MPPlugin from '../main';
 import { Template } from '../templateManager';
 import { TemplatePreviewModal } from './templatePreviewModal';
+import { CSSEditorModal } from './CSSEditorModal';
 
 export class CreateTemplateModal extends Modal {
     private template: Template;
@@ -22,7 +23,13 @@ export class CreateTemplateModal extends Modal {
             description: '',
             isPreset: false,
             isVisible: true,
-            styles: this.initializeStyles()
+            styles: this.initializeStyles(),
+            customCSS: {
+                enabled: false,
+                customCSS: '',
+                cssVariables: {},
+                extraClassName: ''
+            }
         };
     }
 
@@ -164,6 +171,9 @@ export class CreateTemplateModal extends Modal {
         // 创建可滚动的内容区域
         const scrollContainer = contentEl.createDiv('modal-scroll-container');
         const settingContainer = scrollContainer.createDiv('setting-container');
+
+        // 添加 CSS 自定义编辑入口
+        this.addCustomCSSEntry(settingContainer);
 
         // 添加样式设置
         this.addStyleSettings(settingContainer, '全局样式', this.template.styles);
@@ -1216,6 +1226,91 @@ export class CreateTemplateModal extends Modal {
     private generateTemplateId(name: string): string {
         // 生成模板ID的逻辑
         return `template-${name}`;
+    }
+
+    /**
+     * 添加自定义 CSS 编辑入口
+     */
+    private addCustomCSSEntry(container: HTMLElement) {
+        const section = container.createDiv('style-section css-custom-section');
+        section.addClass('is-expanded');
+
+        // 创建折叠面板标题区域
+        const header = section.createDiv('style-section-header');
+        const titleContainer = header.createDiv('style-section-title');
+        const toggle = titleContainer.createSpan('style-section-toggle');
+        setIcon(toggle, 'chevron-down');
+        titleContainer.createEl('h3', { text: '自定义 CSS' });
+
+        // 显示当前状态
+        const statusEl = header.createSpan('css-status');
+        this.updateCSSStatus(statusEl);
+
+        // 创建内容区域
+        const content = section.createDiv('style-section-content');
+        
+        // 描述文本
+        const descEl = content.createEl('p', { 
+            text: '使用 CSS 完全自定义模板样式，支持 CSS 变量、伪类、动画等高级特性。启用后将覆盖上方的可视化样式设置。',
+            cls: 'css-section-description'
+        });
+
+        // 按钮组
+        const buttonContainer = content.createDiv('css-button-container');
+        
+        // 编辑 CSS 按钮
+        new Setting(buttonContainer)
+            .addButton(btn => btn
+                .setButtonText(this.template.customCSS?.enabled ? '编辑 CSS' : '启用并编辑 CSS')
+                .setCta()
+                .onClick(() => {
+                    new CSSEditorModal(
+                        this.app,
+                        this.template.customCSS,
+                        (customCSS) => {
+                            this.template.customCSS = customCSS;
+                            this.updateCSSStatus(statusEl);
+                            new Notice(customCSS.enabled ? '自定义 CSS 已启用' : '自定义 CSS 已禁用');
+                        }
+                    ).open();
+                }));
+
+        // 快速操作按钮
+        if (this.template.customCSS?.enabled) {
+            new Setting(buttonContainer)
+                .addButton(btn => btn
+                    .setButtonText('禁用 CSS')
+                    .onClick(() => {
+                        if (this.template.customCSS) {
+                            this.template.customCSS.enabled = false;
+                        }
+                        this.updateCSSStatus(statusEl);
+                        new Notice('自定义 CSS 已禁用');
+                    }))
+                .addButton(btn => btn
+                    .setButtonText('预览效果')
+                    .onClick(() => {
+                        const previewModal = new TemplatePreviewModal(this.app, this.template, this.plugin.templateManager);
+                        previewModal.open();
+                    }));
+        }
+
+        // 折叠面板点击事件
+        header.addEventListener('click', () => {
+            const isExpanded = !section.hasClass('is-expanded');
+            section.toggleClass('is-expanded', isExpanded);
+            setIcon(toggle, isExpanded ? 'chevron-down' : 'chevron-right');
+        });
+    }
+
+    /**
+     * 更新 CSS 状态显示
+     */
+    private updateCSSStatus(statusEl: HTMLElement) {
+        const isEnabled = this.template.customCSS?.enabled;
+        statusEl.setText(isEnabled ? '● 已启用' : '○ 未启用');
+        statusEl.toggleClass('css-enabled', isEnabled || false);
+        statusEl.toggleClass('css-disabled', !isEnabled);
     }
 
     onClose() {

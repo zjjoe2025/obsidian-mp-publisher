@@ -1,5 +1,6 @@
 import { App } from 'obsidian';
 import { SettingsManager } from './settings/settings';
+import { TemplateCustomCSS } from './types/template-css';
 
 export interface Template {
     id: string;
@@ -65,6 +66,8 @@ export interface Template {
             backref: string;
         };
     };
+    /** 自定义 CSS 配置 */
+    customCSS?: TemplateCustomCSS;
 }
 
 export class TemplateManager {
@@ -100,6 +103,12 @@ export class TemplateManager {
 
     public applyTemplate(element: HTMLElement, template?: Template): void {
         const styles = template ? template.styles : this.currentTemplate.styles;
+        const customCSS = template?.customCSS || this.currentTemplate?.customCSS;
+        
+        // 如果启用了自定义 CSS，先注入自定义样式
+        if (customCSS?.enabled && customCSS?.customCSS) {
+            this.injectCustomCSS(element, customCSS);
+        }
         // 应用标题样式
         ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].forEach(tag => {
             element.querySelectorAll(tag).forEach(el => {
@@ -219,6 +228,46 @@ export class TemplateManager {
             const img = el as HTMLImageElement;
             el.setAttribute('style', styles.image);
         });
+    }
+
+    /**
+     * 注入自定义 CSS 样式
+     */
+    private injectCustomCSS(element: HTMLElement, customCSS: TemplateCustomCSS): void {
+        // 移除已有的自定义样式标签
+        const existingStyle = element.querySelector('style[data-custom-css]');
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+
+        // 创建新的样式标签
+        const styleEl = document.createElement('style');
+        styleEl.setAttribute('data-custom-css', 'true');
+        styleEl.textContent = customCSS.customCSS;
+        
+        // 将样式标签添加到元素中
+        element.insertBefore(styleEl, element.firstChild);
+
+        // 添加额外的 CSS 类名
+        if (customCSS.extraClassName) {
+            element.classList.add(customCSS.extraClassName);
+        }
+    }
+
+    /**
+     * 移除自定义 CSS 样式
+     */
+    public removeCustomCSS(element: HTMLElement): void {
+        const existingStyle = element.querySelector('style[data-custom-css]');
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+        
+        // 移除所有自定义 CSS 类名
+        const customCSS = this.currentTemplate?.customCSS;
+        if (customCSS?.extraClassName) {
+            element.classList.remove(customCSS.extraClassName);
+        }
     }
 }
 

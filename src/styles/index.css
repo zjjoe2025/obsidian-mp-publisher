@@ -5,6 +5,7 @@
 @import url('./settings/template-modal.css');
 @import url('./settings/template-preview-modal.css');
 @import url('./settings/background-modal.css');
+@import url('./settings/css-editor.css');
 
 /* 发布按钮样式 */
 .mp-publish-button {

@@ -253,3 +253,68 @@
     margin-top: 6px;
     font-size: 0.9em;
 }
+
+/* ==================== 自定义 CSS 区域样式 ==================== */
+
+/* CSS 自定义区域特殊样式 */
+.mp-template-modal .css-custom-section {
+    border: 2px solid var(--interactive-accent);
+    background: linear-gradient(135deg, var(--background-primary) 0%, var(--background-secondary) 100%);
+}
+
+.mp-template-modal .css-custom-section .style-section-header {
+    background: linear-gradient(135deg, var(--interactive-accent-hover) 0%, var(--interactive-accent) 100%);
+}
+
+.mp-template-modal .css-custom-section .style-section-header:hover {
+    background: linear-gradient(135deg, var(--interactive-accent) 0%, var(--interactive-accent-hover) 100%);
+}
+
+.mp-template-modal .css-custom-section .style-section-title h3 {
+    color: var(--text-on-accent);
+    font-weight: 600;
+}
+
+/* CSS 状态指示器 */
+.mp-template-modal .css-status {
+    font-size: 0.85em;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.mp-template-modal .css-status.css-enabled {
+    color: var(--text-success);
+    background: rgba(var(--background-modifier-success-rgb), 0.15);
+}
+
+.mp-template-modal .css-status.css-disabled {
+    color: var(--text-muted);
+    background: var(--background-modifier-hover);
+}
+
+/* CSS 区域描述文本 */
+.mp-template-modal .css-section-description {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--background-secondary);
+    border-radius: 6px;
+    border-left: 3px solid var(--interactive-accent);
+}
+
+/* CSS 按钮容器 */
+.mp-template-modal .css-button-container {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.mp-template-modal .css-button-container .setting-item {
+    border: none;
+    padding: 0;
+}
