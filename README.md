@@ -11,7 +11,7 @@ https://github.com/user-attachments/assets/b62e82a0-9b3c-4406-8007-1bbb6b9b7bac
 - **本地自定义主题**：在插件目录 `custom/` 文件夹下放置 `.css` 文件即可加载为自定义主题
 - **主题管理界面**：通过命令面板打开独立的主题管理视图，支持浏览、切换、新建、编辑、删除主题
 
-
+https://github.com/user-attachments/assets/78e8df0e-ea0d-4902-bcb5-dd384e19fefe
 
 ### 👁️ 实时预览+自定义主题 CSS
 - **CSS 在线编辑器**：在主题管理界面中直接编写和保存自定义 CSS
@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/b62e82a0-9b3c-4406-8007-1bbb6b9b7bac
 - **内置字体选择**：预置多种中文字体供选择
 - **字号调整**：灵活调整文章字号
 
-
+https://github.com/user-attachments/assets/24288345-b5c8-4613-956b-78b622317d95
 
 ### 👁️ 实时预览
 - **所见即所得**：实时预览公众号效果
