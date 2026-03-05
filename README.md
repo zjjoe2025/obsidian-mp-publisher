@@ -39,16 +39,16 @@ https://github.com/user-attachments/assets/b62e82a0-9b3c-4406-8007-1bbb6b9b7bac
 
 ## 📦 安装
 
-### 从 Obsidian 社区插件安装（推荐）
-1. 打开 Obsidian 设置
-2. 进入"第三方插件"
-3. 关闭"安全模式"
-4. 点击"浏览"并搜索"MP Publisher"
-5. 点击安装并启用
+### 通过 BRAT 插件安装（推荐）
+1. 在 Obsidian 社区插件中搜索并安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件
+2. 打开 BRAT 设置，点击 **Add beta plugin**
+3. 粘贴仓库链接：`https://github.com/joeytoday/obsidian-mp-publisher.git`
+4. 可选择安装版本，点击确认即可自动安装
+5. 在 Obsidian 设置中启用插件
 
 ### 手动安装
-1. 下载最新版本的 release `mp-publisher.zip` 文件
-2. 将文件解压到 `<vault>/.obsidian/plugins/` 目录
+1. 前往 [Releases](https://github.com/joeytoday/obsidian-mp-publisher/releases) 下载最新版本的 `mp-publisher.zip` 文件
+2. 将文件解压到你的 Obsidian 仓库 `<vault>/.obsidian/plugins/` 目录下
 3. 重新加载 Obsidian
 4. 在设置中启用插件
 
@@ -150,14 +150,10 @@ https://github.com/user-attachments/assets/b62e82a0-9b3c-4406-8007-1bbb6b9b7bac
 - ✅ 表格
 - ✅ 分隔线
 - ✅ 脚注
-- ✅ Callout 提示框（30+ 种类型，公众号兼容）
 
 ## 📝 元数据管理
 
 插件会在文档的 `[文档名]__assets` 文件夹中创建 `metadata.json` 文件，用于存储：
-- 发布的草稿信息（media_id、item）
-- 已上传图片的映射关系
-- 最后发布时间
 
 ## 💡 使用技巧
 
@@ -173,24 +169,12 @@ https://github.com/user-attachments/assets/b62e82a0-9b3c-4406-8007-1bbb6b9b7bac
 - 可在主题卡片中点击「查看 CSS」查看完整源码，一键复制后修改
 - 使用"预览"功能查看效果后再保存
 
-### 3. 使用 Callout
-- 在 Markdown 中使用 `> [!tip]` 等语法创建 Callout
-- 所有 Callout 类型都支持发布到公众号，样式不会丢失
-- 示例：
-  ```markdown
-  > [!tip] 小贴士
-  > 这是一个提示内容
-
-  > [!warning] 注意
-  > 这是一个警告内容
-  ```
-
-### 4. 草稿更新
+### 3. 草稿更新
 - 再次发布同一文档会自动更新草稿
 - 元数据保存在 `[文档名]__assets/metadata.json`
 - 删除该文件可以创建新草稿
 
-### 5. 批量发布
+### 4. 批量发布
 - 可以为多个文档分别配置不同的样式
 - 使用命令面板快速切换文档并发布
 
@@ -270,18 +254,6 @@ CSS 主题使用 `.mp-content-section` 作为根选择器，例如：
 }
 ```
 
-### Q: 支持哪些 Callout 类型？
-**A:** 支持 Obsidian 所有标准 Callout 类型，包括：
-- **信息类**：note、info、abstract、summary、tldr
-- **提示类**：tip、hint、important
-- **警告类**：warning、caution、attention
-- **危险类**：danger、error、bug
-- **成功类**：success、check、done
-- **问题类**：question、help、faq
-- **失败类**：failure、fail、missing
-- **其他**：example、todo、quote、cite
-
-所有类型在发布到公众号后都能正确显示样式
 
 ## 🎓 最佳实践
 
