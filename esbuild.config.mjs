@@ -35,13 +35,14 @@ const options = {
 	format: 'cjs',
 	target: 'es2018',
 	logLevel: "info",
-	sourcemap: prod ? false : 'inline',
+	sourcemap: false, // 不生成 sourcemap 文件
 	treeShaking: true,
 	minify: prod, // 生产模式启用代码压缩
 	outfile: 'main.js',
 	loader: {
 		'.css': 'text', // 将 .css 文件作为文本字符串导入（用于内置主题）
 	},
+	metafile: false, // 不生成 meta.json 文件
 };
 
 if (prod) {

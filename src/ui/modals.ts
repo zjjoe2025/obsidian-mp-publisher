@@ -531,7 +531,6 @@ export class PublishModal extends Modal {
 						return;
 					}
 
-					publishButton.textContent = '正在发布...';
 					const success = await this.plugin.publishToWechat(
 						title,
 						htmlContent,
@@ -541,6 +540,9 @@ export class PublishModal extends Modal {
 
 					if (success) {
 						this.close();
+					} else {
+						publishButton.disabled = false;
+						publishButton.textContent = '发布';
 					}
 				} catch (error) {
 					console.error('发布失败:', error);
