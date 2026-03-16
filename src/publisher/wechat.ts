@@ -4,6 +4,7 @@ import { getOrCreateMetadata, isImageUploaded, addImageMetadata, updateMetadata,
 import { Logger } from '../utils/logger';
 import { cleanObsidianUIElements } from '../utils/html-cleaner';
 import { getPathFromPattern } from '../utils/path-utils';
+import { getProgressIndicator } from '../ui/ProgressIndicator';
 
 // 微信素材类型接口
 interface WechatMaterial {
@@ -276,7 +277,8 @@ export class WechatPublisher {
     async processDocumentImages(
         content: string,
         file: TFile,
-        assetFolderPath?: string
+        assetFolderPath?: string,
+        onProgress?: (current: number, total: number, imageName?: string) => void
     ): Promise<string> {
         try {
             if (!file.parent) {
@@ -300,22 +302,31 @@ export class WechatPublisher {
             });
 
             // 获取所有图片元素
+            // 获取所有图片元素
             const images = tempDiv.querySelectorAll('img');
-            this.logger.debug(`发现 ${images.length} 张图片需要处理`);
+            const totalImages = images.length;
+            this.logger.debug(`发现 ${totalImages} 张图片需要处理`);
 
             // 处理每个图片
+            let processedCount = 0;
             for (const img of Array.from(images)) {
                 const src = img.getAttribute('src');
                 if (!src) continue;
 
-                // 处理图片并获取微信URL (现在也处理 http 图片以供自动上传)
+                // 更新进度
+                if (onProgress) {
+                    const fileName = src.split('/').pop() || `图片 ${processedCount + 1}`;
+                    onProgress(processedCount, totalImages, fileName);
+                }
+
+                // 处理图片并获取微信 URL (现在也处理 http 图片以供自动上传)
                 const imageUrl = await this.processImage(src, file, metadata, resolvedAssetFolderPath);
                 if (!imageUrl) continue;
 
-                // 更新图片src为微信URL
+                // 更新图片 src 为微信 URL
                 img.setAttribute('src', imageUrl);
+                processedCount++;
             }
-
             // 使用XMLSerializer安全地获取HTML内容，而不是使用innerHTML
             const serializer = new XMLSerializer();
             return serializer.serializeToString(tempDiv);
@@ -468,9 +479,36 @@ export class WechatPublisher {
         file: TFile
     ): Promise<boolean> {
         try {
+            // 获取进度指示器
+            const progress = getProgressIndicator(this.app);
+            
+            // 先统计图片数量
+            const tempDiv = document.createElement('div');
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, 'text/html');
+            tempDiv.appendChild(document.importNode(doc.body, true));
+            const imageCount = tempDiv.querySelectorAll('img').length;
+            
+            // 显示进度指示器（图片数量 + 1 个发布步骤）
+            const totalSteps = imageCount + 1;
+            progress.show(totalSteps, '正在发布到微信公众号...');
+            
             // 处理文档中的图片
             const assetFolderPath = this.getAssetFolderPath(file);
-            let processedContent = await this.processDocumentImages(content, file, assetFolderPath);
+            let processedCount = 0;
+            let processedContent = await this.processDocumentImages(
+                content, 
+                file, 
+                assetFolderPath,
+                (current, total, imageName) => {
+                    processedCount = current;
+                    progress.updateProgress(
+                        current, 
+                        totalSteps, 
+                        `正在上传图片 ${current + 1}/${total}: ${imageName || ''}`.trim()
+                    );
+                }
+            );
 
             // 清理HTML内容，移除Obsidian UI元素
             processedContent = this.cleanHtmlForWechat(processedContent);
@@ -578,6 +616,8 @@ export class WechatPublisher {
                 updateDraftMetadata(metadata, updateData);
                 await updateMetadata(this.app.vault, file, metadata, assetFolderPath);
 
+                // 显示成功状态
+                progress.showSuccess('发布成功！');
                 new Notice('成功发布到微信公众号草稿箱');
                 return true;
             } else {

@@ -1885,3 +1885,157 @@ ol {
 .mp-tm-add-font h4 {
     margin: 0 0 10px;
 }
+
+/* 发布进度指示器 */
+.mp-progress-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 320px;
+    max-width: 450px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    animation: mp-progress-slide-in 0.3s ease-out;
+}
+
+@keyframes mp-progress-slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.mp-progress-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-normal);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mp-progress-title::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--text-accent);
+    border-radius: 50%;
+    animation: mp-progress-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes mp-progress-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.mp-progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background: var(--background-secondary);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.mp-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--text-accent), var(--text-accent-hover));
+    border-radius: 3px;
+    transition: width 0.4s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.mp-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: mp-progress-shimmer 1.5s infinite;
+}
+
+@keyframes mp-progress-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.mp-progress-bar.success {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.mp-progress-bar.error {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.mp-progress-status {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.mp-progress-status.success {
+    color: #22c55e;
+    font-weight: 500;
+}
+
+.mp-progress-status.error {
+    color: #ef4444;
+    font-weight: 500;
+}
+
+.mp-progress-warning {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: rgba(251, 191, 36, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    font-size: 12px;
+    color: #f59e0b;
+    font-weight: 500;
+}
+
+.mp-progress-warning .warning-icon {
+    font-size: 14px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .mp-progress-indicator {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+}
