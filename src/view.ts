@@ -4,6 +4,7 @@ import { CopyManager } from './copyManager';
 import { DonateManager } from './donateManager';
 import type { SettingsManager } from './settings/settings';
 import type { ThemeManager } from './themeManager';
+import { preprocessMathFormula, waitForAsyncRender, convertMathToSVG as mathToSVG } from './utils/math-formula';
 
 export const VIEW_TYPE_MP = 'mp-preview';
 
@@ -485,15 +486,44 @@ export class MPView extends ItemView {
         this.previewEl.empty();
         const content = await this.app.vault.cachedRead(this.currentFile);
 
+        // 预处理 Markdown，转换 LaTeX 语法
+        const processedMarkdown = preprocessMathFormula(content);
+
         await MarkdownRenderer.render(
             this.app,
-            content,
+            processedMarkdown,
             this.previewEl,
             this.currentFile.path,
             this,
         );
 
+        // 等待异步渲染完成（MathJax 等）
+        await waitForAsyncRender(this.previewEl, 3000);
+
         MPConverter.formatContent(this.previewEl);
+
+        // 处理数学公式转换为 SVG（如果启用）
+        if (this.plugin.settings.convertMathToSVG) {
+            try {
+                const serializer = new XMLSerializer();
+                let htmlContent = serializer.serializeToString(this.previewEl);
+                htmlContent = htmlContent.replace(/ xmlns="http:\/\/www\.w3\.org\/1999\/xhtml"/g, '');
+                
+                if (htmlContent.includes('mjx-')) {
+                    htmlContent = await mathToSVG(htmlContent, processedMarkdown);
+                    
+                    // 将处理后的 HTML 重新加载到预览区域
+                    this.previewEl.empty();
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = htmlContent;
+                    while (tempDiv.firstChild) {
+                        this.previewEl.appendChild(tempDiv.firstChild);
+                    }
+                }
+            } catch (mathError) {
+                console.error('预览数学公式处理失败:', mathError);
+            }
+        }
 
         // 使用新的 CSS 主题系统：注入 <style> 标签
         const section = this.previewEl.querySelector('.mp-content-section') as HTMLElement;
