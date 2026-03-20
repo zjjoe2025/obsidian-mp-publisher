@@ -3,8 +3,6 @@
  * 支持 LaTeX 公式的预处理和图片转换
  */
 
-import { requestUrl } from 'obsidian';
-
 /**
  * 预处理 Markdown 内容，转换 LaTeX 语法为 Obsidian 支持的 $ 语法
  */
@@ -118,47 +116,19 @@ function extractFormulas(markdown: string): Array<{ tex: string; isBlock: boolea
  */
 async function renderFormulaWithApi(tex: string, isBlock: boolean): Promise<string | null> {
     try {
-        // 使用 CodeCogs API 渲染公式
+        // 使用 CodeCogs API 渲染公式，直接使用在线图片链接
         const encodedTex = encodeURIComponent(tex);
-        const apiUrl = `https://latex.codecogs.com/png.latex?\\dpi{200}${encodedTex}`;
-
-        // 下载图片
-        const response = await requestUrl({
-            url: apiUrl,
-            method: 'GET',
-        });
-
-        if (response.status !== 200) {
-            console.error('[Math] API 请求失败:', response.status);
-            return null;
-        }
-
-        // 转换为 base64
-        const arrayBuffer = response.arrayBuffer;
-        const base64 = arrayBufferToBase64(arrayBuffer);
-        const dataUrl = `data:image/png;base64,${base64}`;
+        const imgUrl = `https://latex.codecogs.com/png.latex?\\dpi{200}${encodedTex}`;
 
         const imgStyle = isBlock
             ? 'display:block;margin:1em auto;max-width:100%;'
             : 'vertical-align:middle;display:inline-block;';
 
-        return `<img src="${dataUrl}" alt="${escapeHtml(tex)}" style="${imgStyle}">`;
+        return `<img src="${imgUrl}" alt="${escapeHtml(tex)}" style="${imgStyle}">`;
     } catch (e) {
         console.error('[Math] API 渲染失败:', e);
         return null;
     }
-}
-
-/**
- * ArrayBuffer 转 Base64
- */
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
 }
 
 /**
