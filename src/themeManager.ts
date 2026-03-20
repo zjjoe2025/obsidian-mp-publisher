@@ -312,6 +312,63 @@ export class ThemeManager {
         return true;
     }
 
+    /** 重命名本地主题 */
+    async renameLocalTheme(themeId: string, newName: string): Promise<boolean> {
+        const theme = this.themes.get(themeId);
+        if (!theme || theme.source !== ThemeSource.LOCAL) return false;
+
+        // 验证名称格式
+        if (!/^[a-zA-Z0-9\-_\u4e00-\u9fff]+$/.test(newName)) {
+            return false;
+        }
+
+        const newThemeId = `local-${newName}`;
+        const customDir = this.getCustomThemeDir();
+        const newFilePath = `${customDir}/${newName}.css`;
+
+        // 检查新名称是否已存在
+        if (this.themes.has(newThemeId) && newThemeId !== themeId) {
+            return false;
+        }
+
+        try {
+            const adapter = this.app.vault.adapter;
+
+            // 写入新文件
+            await adapter.write(newFilePath, theme.css);
+
+            // 删除旧文件
+            if (theme.localPath && await adapter.exists(theme.localPath)) {
+                await adapter.remove(theme.localPath);
+            }
+
+            // 更新主题信息
+            const wasActive = this.activeTheme?.id === themeId;
+
+            // 删除旧的映射
+            this.themes.delete(themeId);
+
+            // 更新主题属性
+            theme.id = newThemeId;
+            theme.name = newName;
+            theme.localPath = newFilePath;
+
+            // 添加新的映射
+            this.themes.set(newThemeId, theme);
+
+            // 如果是当前激活的主题，更新激活状态和设置
+            if (wasActive) {
+                this.activeTheme = theme;
+                await this.plugin.settingsManager.updateSettings({ activeThemeId: newThemeId });
+            }
+
+            return true;
+        } catch (error) {
+            console.error('重命名本地主题失败:', error);
+            return false;
+        }
+    }
+
     /** 重新加载本地主题（文件变更后） */
     async reloadLocalThemes(): Promise<void> {
         // 移除所有本地主题

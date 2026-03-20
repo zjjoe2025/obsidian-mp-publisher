@@ -306,8 +306,23 @@ export class ThemeManagerView extends ItemView {
 
             try {
                 if (existingTheme) {
-                    await this.themeManager.updateLocalTheme(existingTheme.id, cssContent);
-                    new Notice(`主题「${themeName}」已更新`);
+                    // 检查名称是否改变
+                    if (themeName !== existingTheme.name) {
+                        // 名称改变，需要重命名
+                        const success = await this.themeManager.renameLocalTheme(existingTheme.id, themeName);
+                        if (!success) {
+                            new Notice('重命名失败，可能名称已存在');
+                            return;
+                        }
+                        // 重命名后更新 CSS
+                        const newThemeId = `local-${themeName}`;
+                        await this.themeManager.updateLocalTheme(newThemeId, cssContent);
+                        new Notice(`主题「${themeName}」已更新`);
+                    } else {
+                        // 名称未变，只更新 CSS
+                        await this.themeManager.updateLocalTheme(existingTheme.id, cssContent);
+                        new Notice(`主题「${themeName}」已更新`);
+                    }
                 } else {
                     await this.themeManager.saveLocalTheme(themeName, cssContent);
                     new Notice(`主题「${themeName}」已创建`);
