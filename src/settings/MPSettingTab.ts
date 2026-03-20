@@ -69,5 +69,20 @@ export class MPSettingTab extends PluginSettingTab {
                     });
                     this.plugin.logger.setDebugMode(value);
                 }));
+
+        // 数学公式配置
+        containerEl.createEl('h3', { text: '数学公式配置' });
+
+        // 转换数学公式为 SVG
+        new Setting(containerEl)
+            .setName('转换数学公式为 SVG')
+            .setDesc('启用后将把 LaTeX 数学公式转换为 SVG 格式，确保在微信公众号中正确显示。支持 $...$（行内公式）和 $$...$$（块级公式）语法')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settingsManager.getSettings().convertMathToSVG)
+                .onChange(async (value) => {
+                    await this.plugin.settingsManager.updateSettings({
+                        convertMathToSVG: value,
+                    });
+                }));
     }
 }

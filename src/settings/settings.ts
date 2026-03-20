@@ -16,6 +16,8 @@ export interface MPSettings {
     debugMode: boolean;
     // 文档发布元数据（图片缓存、草稿 ID 等），以文件路径为 key
     documentMetadata: Record<string, DocumentMetadata>;
+    // 数学公式设置
+    convertMathToSVG: boolean;
 }
 
 const DEFAULT_SETTINGS: MPSettings = {
@@ -31,6 +33,8 @@ const DEFAULT_SETTINGS: MPSettings = {
     debugMode: false,
     // 文档发布元数据
     documentMetadata: {},
+    // 数学公式默认设置
+    convertMathToSVG: true,
 };
 
 export class SettingsManager {

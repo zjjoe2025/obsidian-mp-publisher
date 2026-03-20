@@ -1,5 +1,6 @@
 import { App, MarkdownRenderer, Component } from 'obsidian';
 import { cleanObsidianUIElements } from './utils/html-cleaner';
+import { preprocessMathFormula, waitForAsyncRender, convertMathToSVG as mathToSVG } from './utils/math-formula';
 import type { ThemeManager } from './themeManager';
 
 export class MPConverter {
@@ -308,6 +309,7 @@ export async function markdownToHtml(
     markdown: string,
     sourcePath: string = '',
     themeManager?: ThemeManager,
+    convertMathToSVG: boolean = false,
 ): Promise<string> {
     const tempDiv = document.createElement('div');
     tempDiv.style.position = 'fixed';
@@ -317,17 +319,20 @@ export async function markdownToHtml(
     document.body.appendChild(tempDiv);
 
     try {
+        // 预处理 Markdown，转换 LaTeX 语法
+        const processedMarkdown = preprocessMathFormula(markdown);
+
         // 使用 Obsidian 的 MarkdownRenderer 渲染
         await MarkdownRenderer.render(
             app,
-            markdown,
+            processedMarkdown,
             tempDiv,
             sourcePath,
             new Component(),
         );
 
-        // 等待异步渲染完成
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // 等待异步渲染完成（MathJax、Mermaid 等）
+        await waitForAsyncRender(tempDiv, 3000);
 
         // 清理 Obsidian UI 元素
         cleanObsidianUIElements(tempDiv);
@@ -338,11 +343,6 @@ export async function markdownToHtml(
         // 移除定位样式
         tempDiv.removeAttribute('style');
 
-        // 获取主题 CSS 用于 juice 内联（不通过 applyTheme 注入 <style> 标签，
-        // 而是直接通过 juice 将 CSS 内联到每个元素的 style 属性上，
-        // 确保公众号后台和跨设备粘贴时样式不丢失）
-        const themeCSS = themeManager ? themeManager.getActiveThemeCSS() : '';
-
         // 序列化 HTML
         const serializer = new XMLSerializer();
         const cleanContainer = document.createElement('div');
@@ -352,6 +352,20 @@ export async function markdownToHtml(
 
         let htmlContent = serializer.serializeToString(cleanContainer);
         htmlContent = htmlContent.replace(/ xmlns="http:\/\/www\.w3\.org\/1999\/xhtml"/g, '');
+
+        // 处理数学公式
+        if (convertMathToSVG && htmlContent.includes('mjx-')) {
+            try {
+                htmlContent = await mathToSVG(htmlContent, processedMarkdown);
+            } catch (mathError) {
+                console.error('数学公式处理失败:', mathError);
+            }
+        }
+
+        // 获取主题 CSS 用于 juice 内联（不通过 applyTheme 注入 <style> 标签，
+        // 而是直接通过 juice 将 CSS 内联到每个元素的 style 属性上，
+        // 确保公众号后台和跨设备粘贴时样式不丢失）
+        const themeCSS = themeManager ? themeManager.getActiveThemeCSS() : '';
 
         // 使用 juice 将 CSS 内联到 HTML
         if (themeCSS) {
