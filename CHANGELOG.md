@@ -18,9 +18,9 @@
 
 #### 修改文件
 - `src/converter.ts` - 集成数学公式预处理和转换
-- `src/view.ts` - 预览时处理数学公式
 - `src/settings/settings.ts` - 添加 `convertMathToSVG` 设置项
 - `src/settings/MPSettingTab.ts` - 添加数学公式配置 UI
+- `src/ui/modals.ts` - 发布时支持数学公式转换
 
 ---
 
