@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, MarkdownRenderer, TFile, setIcon, MarkdownView } from 'obsidian';
-import { MPConverter } from './converter';
+import { MPConverter, markdownToHtml } from './converter';
 import { CopyManager } from './copyManager';
 import { DonateManager } from './donateManager';
 import type { SettingsManager } from './settings/settings';
@@ -197,25 +197,41 @@ export class MPView extends ItemView {
 
         // 复制按钮点击事件
         this.copyButton.addEventListener('click', async () => {
-            if (this.previewEl) {
-                this.copyButton.disabled = true;
-                this.copyButton.setText('复制中...');
+            if (!this.currentFile) return;
 
-                try {
-                    await CopyManager.copyToClipboard(this.previewEl);
-                    this.copyButton.setText('复制成功');
+            this.copyButton.disabled = true;
+            this.copyButton.setText('复制中...');
 
-                    setTimeout(() => {
-                        this.copyButton.disabled = false;
-                        this.copyButton.setText('复制为公众号格式');
-                    }, 2000);
-                } catch (error) {
-                    this.copyButton.setText('复制失败');
-                    setTimeout(() => {
-                        this.copyButton.disabled = false;
-                        this.copyButton.setText('复制为公众号格式');
-                    }, 2000);
-                }
+            try {
+                const content = await this.app.vault.cachedRead(this.currentFile);
+                const htmlContent = await markdownToHtml(
+                    this.app,
+                    content,
+                    this.currentFile.path,
+                    this.themeManager,
+                    this.plugin.settings.convertMathToSVG,
+                );
+
+                // 创建临时容器并复制
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                document.body.appendChild(tempDiv);
+
+                await CopyManager.copyToClipboard(tempDiv);
+                document.body.removeChild(tempDiv);
+
+                this.copyButton.setText('复制成功');
+
+                setTimeout(() => {
+                    this.copyButton.disabled = false;
+                    this.copyButton.setText('复制为公众号格式');
+                }, 2000);
+            } catch (error) {
+                this.copyButton.setText('复制失败');
+                setTimeout(() => {
+                    this.copyButton.disabled = false;
+                    this.copyButton.setText('复制为公众号格式');
+                }, 2000);
             }
         });
 
