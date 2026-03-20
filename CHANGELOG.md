@@ -11,16 +11,8 @@
 - **在线渲染**：使用 CodeCogs API 渲染公式，确保微信公众号兼容
 - **设置开关**：在插件设置中可开启/关闭数学公式转换功能
 
-### 📝 技术细节
-
-#### 新增文件
-- `src/utils/math-formula.ts` - 数学公式预处理和转换工具
-
-#### 修改文件
-- `src/converter.ts` - 集成数学公式预处理和转换
-- `src/settings/settings.ts` - 添加 `convertMathToSVG` 设置项
-- `src/settings/MPSettingTab.ts` - 添加数学公式配置 UI
-- `src/ui/modals.ts` - 发布时支持数学公式转换
+#### 主题管理
+- **自定义主题重命名**：支持对本地自定义主题进行二次修改名称
 
 ---
 
