@@ -284,12 +284,17 @@ CSS 主题使用 `.mp-content-section` 作为根选择器，例如：
 
 ## 📄 许可证
 
-MIT License
+本软件采用 **双重许可** 模式：
+
+- **个人/非商业使用**：[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)（知识共享 署名 - 非商业性使用 - 相同方式共享 4.0 国际）
+- **商业使用**：需要商业授权，请联系作者
+
+详见 [LICENSE](LICENSE) 文件。
 
 ## 🙏 致谢
 
 本插件整合了以下优秀项目的功能：
-- [mp-preview](https://github.com/Yeban8090/mp-preview): 样式模板预览系统
+- [mp-preview](https://github.com/Yeban8090/mp-preview): 样式模板预览系统，已重构样式，但依然感谢作者的工作。
 - [obsidian-enhanced-publisher](https://github.com/chararch/obsidian-enhanced-publisher): 微信发布功能
 
 ---
