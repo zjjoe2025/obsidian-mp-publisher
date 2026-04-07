@@ -88,22 +88,6 @@
   overflow-x: auto;
 }
 
-.mp-content-section pre .mp-code-header {
-  margin-bottom: 0.8em;
-  display: flex;
-  gap: 6px;
-}
-
-.mp-content-section pre .mp-code-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.mp-content-section pre .mp-code-dot:nth-child(1) { background-color: #ff5f56; }
-.mp-content-section pre .mp-code-dot:nth-child(2) { background-color: #ffbd2e; }
-.mp-content-section pre .mp-code-dot:nth-child(3) { background-color: #27c93f; }
-
 .mp-content-section code:not(pre code) {
   background: #f5f5f5;
   padding: 2px 5px;

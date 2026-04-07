@@ -40,13 +40,14 @@ export class MPConverter {
 
             const codeEl = pre.querySelector('code');
             if (codeEl) {
-                // 添加 macOS 风格的窗口按钮
-                const header = document.createElement('div');
-                header.className = 'mp-code-header';
+                // 添加 macOS 风格的窗口按钮（使用 section + inline style 确保公众号复制/发布时样式保留）
+                const header = document.createElement('section');
+                header.style.cssText = 'margin-bottom: 1em; display: flex; gap: 6px;';
 
-                for (let i = 0; i < 3; i++) {
-                    const dot = document.createElement('span');
-                    dot.className = 'mp-code-dot';
+                const dotColors = ['#ff5f56', '#ffbd2e', '#27c93f'];
+                for (const color of dotColors) {
+                    const dot = document.createElement('section');
+                    dot.style.cssText = `display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: ${color};`;
                     header.appendChild(dot);
                 }
 
@@ -157,15 +158,16 @@ export class MPConverter {
             
             // 添加编号或符号
             const marker = isOrdered ? `${itemNumber}. ` : '• ';
-            const markerSpan = document.createElement('span');
-            markerSpan.textContent = marker;
-            markerSpan.style.cssText = 'margin-right: 0.25em;';
-            p.appendChild(markerSpan);
+            const markerSection = document.createElement('section');
+            markerSection.textContent = marker;
+            markerSection.style.cssText = 'display: inline; margin-right: 0.25em;';
+            p.appendChild(markerSection);
             
             // 添加内容
-            const contentSpan = document.createElement('span');
-            contentSpan.innerHTML = liElement.innerHTML;
-            p.appendChild(contentSpan);
+            const contentSection = document.createElement('section');
+            contentSection.style.cssText = 'display: inline;';
+            contentSection.innerHTML = liElement.innerHTML;
+            p.appendChild(contentSection);
             
             section.appendChild(p);
             
@@ -240,26 +242,27 @@ export class MPConverter {
             newCallout.style.cssText = `background: ${colors.bg}; border-left: 4px solid ${colors.border}; border-radius: 6px; padding: 12px 16px; margin: 1em 0; box-sizing: border-box;`;
 
             // 标题行
-            const titleRow = document.createElement('div');
+            const titleRow = document.createElement('section');
             titleRow.className = 'mp-callout-title';
             titleRow.style.cssText = `display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-weight: bold; color: ${colors.title}; font-size: 1em; line-height: 1.5;`;
 
-            const iconSpan = document.createElement('span');
-            iconSpan.className = 'mp-callout-icon';
-            iconSpan.textContent = colors.icon;
-            iconSpan.style.cssText = 'font-size: 1.1em;';
+            const iconSection = document.createElement('section');
+            iconSection.className = 'mp-callout-icon';
+            iconSection.textContent = colors.icon;
+            iconSection.style.cssText = 'display: inline; font-size: 1.1em;';
 
-            const titleSpan = document.createElement('span');
-            titleSpan.className = 'mp-callout-title-text';
-            titleSpan.textContent = titleText;
+            const titleSection = document.createElement('section');
+            titleSection.className = 'mp-callout-title-text';
+            titleSection.textContent = titleText;
+            titleSection.style.cssText = 'display: inline;';
 
-            titleRow.appendChild(iconSpan);
-            titleRow.appendChild(titleSpan);
+            titleRow.appendChild(iconSection);
+            titleRow.appendChild(titleSection);
             newCallout.appendChild(titleRow);
 
             // 内容区域
             if (contentHTML.trim()) {
-                const contentDiv = document.createElement('div');
+                const contentDiv = document.createElement('section');
                 contentDiv.className = 'mp-callout-content';
                 contentDiv.style.cssText = 'color: #4a4a4a; font-size: 0.95em; line-height: 1.7;';
                 contentDiv.innerHTML = contentHTML;
