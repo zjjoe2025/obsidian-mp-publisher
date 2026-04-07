@@ -94,22 +94,6 @@
   overflow-x: auto;
 }
 
-.mp-content-section pre .mp-code-header {
-  margin-bottom: 1em;
-  display: flex;
-  gap: 6px;
-}
-
-.mp-content-section pre .mp-code-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.mp-content-section pre .mp-code-dot:nth-child(1) { background-color: #d2691e; }
-.mp-content-section pre .mp-code-dot:nth-child(2) { background-color: #daa520; }
-.mp-content-section pre .mp-code-dot:nth-child(3) { background-color: #8fbc8f; }
-
 .mp-content-section code:not(pre code) {
   background: #fdf5e6;
   padding: 2px 6px;

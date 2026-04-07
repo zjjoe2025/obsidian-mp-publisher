@@ -69,6 +69,38 @@ export class CopyManager {
         });
     }
 
+    /**
+     * 从原始预览 DOM 读取 computed style，补全 juice 无法内联的样式。
+     * Obsidian 内置的代码高亮样式不在主题 <style> 标签中，juice 无法内联。
+     */
+    private static applyComputedStylesToCodeBlocks(
+        sourceElement: HTMLElement,
+        targetContainer: HTMLElement,
+    ): void {
+        const sourcePreBlocks = sourceElement.querySelectorAll('pre');
+        const targetPreBlocks = targetContainer.querySelectorAll('pre');
+
+        sourcePreBlocks.forEach((sourcePre, preIndex) => {
+            const targetPre = targetPreBlocks[preIndex] as HTMLElement | undefined;
+            if (!targetPre) return;
+
+            const sourceCode = sourcePre.querySelector('code');
+            const targetCode = targetPre.querySelector('code');
+            if (!sourceCode || !targetCode) return;
+
+            const sourceSpans = sourceCode.querySelectorAll('span');
+            const targetSpans = targetCode.querySelectorAll('span');
+            sourceSpans.forEach((sourceSpan, spanIndex) => {
+                const targetSpan = targetSpans[spanIndex] as HTMLElement | undefined;
+                if (!targetSpan) return;
+                const color = window.getComputedStyle(sourceSpan).color;
+                if (color) {
+                    targetSpan.style.color = color;
+                }
+            });
+        });
+    }
+
     private static async processImages(container: HTMLElement): Promise<void> {
         const images = container.querySelectorAll('img');
         const imageArray = Array.from(images);
@@ -129,12 +161,16 @@ export class CopyManager {
         // 4. 使用 juice 将 CSS 内联到每个元素的 style 属性
         let inlinedHtml = await this.inlineCSS(rawHtml, themeCSS);
 
-        // 5. 清理多余属性（data-*、id、class）
+        // 5. 补全 Obsidian 内置的代码高亮样式（不在主题 CSS 中，juice 无法内联）
+        //    从原始预览 DOM 读取 computed style，写入克隆体的 inline style
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = inlinedHtml;
+        this.applyComputedStylesToCodeBlocks(previewElement, tempContainer);
+
+        // 6. 清理多余属性（data-*、id、class）
         this.cleanupAttributes(tempContainer);
 
-        // 6. 处理列表样式
+        // 7. 处理列表样式
         this.processLists(tempContainer);
 
         return tempContainer.innerHTML;
