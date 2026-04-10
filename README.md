@@ -367,4 +367,10 @@ CSS 主题使用 `.mp-content-section` 作为根选择器，例如：
 
 ---
 
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=joeytoday/obsidian-mp-publisher&type=Date)](https://star-history.com/#joeytoday/obsidian-mp-publisher&Date)
+
+---
+
 **如果这个插件对你有帮助，欢迎 Star ⭐️**
