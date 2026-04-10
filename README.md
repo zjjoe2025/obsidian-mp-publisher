@@ -11,6 +11,7 @@ https://github.com/user-attachments/assets/b62e82a0-9b3c-4406-8007-1bbb6b9b7bac
 - **本地自定义主题**：在插件目录 `custom/` 文件夹下放置 `.css` 文件即可加载为自定义主题
 - **主题管理界面**：通过命令面板打开独立的主题管理视图，支持浏览、切换、新建、编辑、重命名、删除主题
 - **查看与复制 CSS**：在主题卡片中一键查看完整 CSS 源码，支持一键复制
+- 📖 **编写自定义主题前请阅读 [CSS 主题编写指南](./CSS_THEME_GUIDE.md)**，了解可用选择器和禁止使用的 CSS 特性和完整模板
 
 https://github.com/user-attachments/assets/78e8df0e-ea0d-4902-bcb5-dd384e19fefe
 
@@ -188,7 +189,7 @@ https://github.com/user-attachments/assets/24288345-b5c8-4613-956b-78b622317d95
 - CSS 主题使用 `.mp-content-section` 作为根选择器
 - 可在主题卡片中点击「查看 CSS」查看完整源码，一键复制后修改
 - 使用"预览"功能查看效果后再保存
-- 📖 **编写自定义主题前请阅读 [CSS 主题编写指南](CSS_THEME_GUIDE.md)**，了解可用选择器、禁止使用的 CSS 特性和完整模板
+- 📖 **编写自定义主题前请阅读 [CSS 主题编写指南](./CSS_THEME_GUIDE.md)**，了解可用选择器和禁止使用的 CSS 特性和完整模板
 
 ### 3. 数学公式
 - 使用 `$...$` 或 `\(...\)` 包裹行内公式
