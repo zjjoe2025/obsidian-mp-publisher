@@ -410,7 +410,7 @@ async function convertMermaidSVGToImage(container: HTMLElement): Promise<void> {
             const img = document.createElement('img');
             img.src = dataUrl;
             img.alt = 'mermaid diagram';
-            img.style.cssText = 'display: block; max-width: 100%; margin: 1em auto;';
+            img.style.cssText = 'display: block; max-width: 100%; margin: 1em auto; border-radius: 0;';
 
             mermaidEl.parentNode?.replaceChild(img, mermaidEl);
         } catch (error) {

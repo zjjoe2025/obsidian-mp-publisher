@@ -139,8 +139,8 @@ async function renderFormulaWithApi(tex: string, isBlock: boolean): Promise<stri
         const imgUrl = `https://latex.codecogs.com/png.latex?\\dpi{200}${encodedTex}`;
 
         const imgStyle = isBlock
-            ? 'display:block;margin:1em auto;max-width:100%;'
-            : 'vertical-align:middle;display:inline-block;height:1.1em;';
+            ? 'display:block;margin:1em auto;max-width:100%;border-radius:0;'
+            : 'vertical-align:middle;display:inline;height:18px;max-height:20px;margin:0;padding:0;border-radius:0;';
 
         return `<img src="${imgUrl}" alt="${escapeHtml(tex)}" style="${imgStyle}">`;
     } catch (e) {
