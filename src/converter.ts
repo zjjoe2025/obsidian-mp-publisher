@@ -332,6 +332,9 @@ export async function markdownToHtml(
         // 等待异步渲染完成（MathJax、Mermaid 等）
         await waitForAsyncRender(tempDiv, 3000);
 
+        // 将 Mermaid SVG 转为 PNG 图片（微信公众号对 SVG 支持有限）
+        await convertMermaidSVGToImage(tempDiv);
+
         // 清理 Obsidian UI 元素
         cleanObsidianUIElements(tempDiv);
 
@@ -351,7 +354,7 @@ export async function markdownToHtml(
         let htmlContent = serializer.serializeToString(cleanContainer);
         htmlContent = htmlContent.replace(/ xmlns="http:\/\/www\.w3\.org\/1999\/xhtml"/g, '');
 
-        // 处理数学公式
+        // 处理数学公式（使用在线 API 转为图片）
         if (convertMathToSVG && htmlContent.includes('mjx-')) {
             try {
                 htmlContent = await mathToSVG(htmlContent, processedMarkdown);
@@ -386,4 +389,113 @@ export async function markdownToHtml(
             document.body.removeChild(tempDiv);
         }
     }
+}
+
+/**
+ * 将 Mermaid 渲染的 SVG 转为 PNG 图片
+ * 微信公众号对 SVG 支持有限，需要转为 base64 PNG
+ */
+async function convertMermaidSVGToImage(container: HTMLElement): Promise<void> {
+    const mermaidContainers = container.querySelectorAll('.mermaid, pre.mermaid, [class*="mermaid"]');
+    if (mermaidContainers.length === 0) return;
+
+    for (const mermaidEl of Array.from(mermaidContainers)) {
+        const svgElement = mermaidEl.querySelector('svg');
+        if (!svgElement) continue;
+
+        try {
+            const dataUrl = await svgToDataUrl(svgElement);
+            if (!dataUrl) continue;
+
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.alt = 'mermaid diagram';
+            img.style.cssText = 'display: block; max-width: 100%; margin: 1em auto;';
+
+            mermaidEl.parentNode?.replaceChild(img, mermaidEl);
+        } catch (error) {
+            console.error('[Mermaid] SVG 转图片失败:', error);
+        }
+    }
+}
+
+/**
+ * 将 SVG 元素通过 Canvas 转为 base64 PNG data URL
+ * 优先从 viewBox 获取尺寸，确保甘特图等宽图表正确渲染
+ */
+function svgToDataUrl(svgElement: SVGElement): Promise<string | null> {
+    return new Promise((resolve) => {
+        try {
+            const svgEl = svgElement as SVGSVGElement;
+
+            // 优先从 viewBox 获取尺寸（甘特图等通常只有 viewBox）
+            let width = 0;
+            let height = 0;
+
+            const viewBox = svgEl.getAttribute('viewBox');
+            if (viewBox) {
+                const parts = viewBox.split(/[\s,]+/).map(Number);
+                if (parts.length === 4 && parts[2] > 0 && parts[3] > 0) {
+                    width = parts[2];
+                    height = parts[3];
+                }
+            }
+
+            // 其次从 width/height 属性获取（排除百分比值）
+            if (!width || !height) {
+                const attrWidth = svgEl.getAttribute('width') || '';
+                const attrHeight = svgEl.getAttribute('height') || '';
+                if (attrWidth && !attrWidth.includes('%')) {
+                    width = parseFloat(attrWidth) || width;
+                }
+                if (attrHeight && !attrHeight.includes('%')) {
+                    height = parseFloat(attrHeight) || height;
+                }
+            }
+
+            // 最后兜底
+            if (!width) width = 800;
+            if (!height) height = 600;
+
+            const scale = 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = width * scale;
+            canvas.height = height * scale;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                resolve(null);
+                return;
+            }
+
+            const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
+            clonedSvg.setAttribute('width', String(width));
+            clonedSvg.setAttribute('height', String(height));
+            // 确保 viewBox 存在，保持正确的宽高比
+            if (!clonedSvg.getAttribute('viewBox')) {
+                clonedSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            }
+
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(clonedSvg);
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            const img = new Image();
+            img.onload = () => {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                resolve(null);
+            };
+            img.src = url;
+        } catch {
+            resolve(null);
+        }
+    });
 }

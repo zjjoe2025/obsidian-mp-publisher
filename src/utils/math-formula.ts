@@ -35,19 +35,37 @@ export function preprocessMathFormula(markdown: string): string {
 }
 
 /**
- * 等待异步渲染完成（MathJax 等）
+ * 等待异步渲染完成（MathJax、Mermaid 等）
  */
 export async function waitForAsyncRender(el: HTMLElement, maxWait = 3000): Promise<void> {
     const hasMath = el.querySelector('.math, .math-inline, .math-block, mjx-container');
-    if (!hasMath) return;
+    const hasMermaid = el.querySelector('.mermaid, pre.mermaid, [class*="mermaid"]');
+
+    if (!hasMath && !hasMermaid) return;
 
     const start = Date.now();
     while (Date.now() - start < maxWait) {
-        const containers = el.querySelectorAll('mjx-container');
-        if (containers.length > 0) {
-            const hasContent = Array.from(containers).some(c => c.innerHTML.length > 50);
-            if (hasContent) return;
+        let mathReady = true;
+        let mermaidReady = true;
+
+        if (hasMath) {
+            const containers = el.querySelectorAll('mjx-container');
+            if (containers.length > 0) {
+                mathReady = Array.from(containers).some(c => c.innerHTML.length > 50);
+            } else {
+                mathReady = false;
+            }
         }
+
+        if (hasMermaid) {
+            const mermaidContainers = el.querySelectorAll('.mermaid, pre.mermaid, [class*="mermaid"]');
+            mermaidReady = Array.from(mermaidContainers).every(
+                container => container.querySelector('svg') !== null,
+            );
+        }
+
+        if (mathReady && mermaidReady) return;
+
         await new Promise(r => setTimeout(r, 100));
     }
 }
@@ -122,7 +140,7 @@ async function renderFormulaWithApi(tex: string, isBlock: boolean): Promise<stri
 
         const imgStyle = isBlock
             ? 'display:block;margin:1em auto;max-width:100%;'
-            : 'vertical-align:middle;display:inline-block;';
+            : 'vertical-align:middle;display:inline-block;height:1.4em;';
 
         return `<img src="${imgUrl}" alt="${escapeHtml(tex)}" style="${imgStyle}">`;
     } catch (e) {
@@ -140,3 +158,4 @@ function escapeHtml(str: string): string {
               .replace(/>/g, '&gt;')
               .replace(/"/g, '&quot;');
 }
+
