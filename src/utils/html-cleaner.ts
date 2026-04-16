@@ -12,11 +12,19 @@ import { App } from 'obsidian';
 export function cleanObsidianUIElements(element: HTMLElement): void {
     try {
         // 移除Obsidian特有的UI元素（使用更具体的选择器避免误删）
+        // 将内部链接转为纯文本（保留文本内容，去掉链接标签）
+        const internalLinks = element.querySelectorAll('.internal-link');
+        internalLinks.forEach(link => {
+            const textContent = link.textContent || '';
+            const textNode = document.createTextNode(textContent);
+            link.parentNode?.replaceChild(textNode, link);
+        });
+
+        // 移除Obsidian特有的UI元素（使用更具体的选择器避免误删）
         const elementsToRemove = [
             '.copy-code-button',           // 代码块复制按钮
             '.clickable-icon',             // 可点击图标
             '.markdown-embed-link',        // 嵌入链接
-            '.internal-link',              // 内部链接图标
             '.collapse-indicator',         // 折叠指示器
             '.file-embed-link',            // 文件嵌入链接
             '.popover',                    // 弹出提示
