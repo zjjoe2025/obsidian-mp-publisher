@@ -140,7 +140,7 @@ async function renderFormulaWithApi(tex: string, isBlock: boolean): Promise<stri
 
         const imgStyle = isBlock
             ? 'display:block;margin:1em auto;max-width:100%;'
-            : 'vertical-align:middle;display:inline-block;height:1.4em;';
+            : 'vertical-align:middle;display:inline-block;height:1.1em;';
 
         return `<img src="${imgUrl}" alt="${escapeHtml(tex)}" style="${imgStyle}">`;
     } catch (e) {
